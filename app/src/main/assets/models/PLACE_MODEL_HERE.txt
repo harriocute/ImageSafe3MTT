@@ -1,0 +1,11 @@
+Place your TFLite model file here as: detect.tflite
+
+Download instructions:
+
+1. EfficientDet-Lite0 (recommended):
+   https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/android/lite-model_efficientdet_lite0_detection_metadata_1.tflite
+
+2. MobileNet SSD v1 (faster):
+   https://storage.googleapis.com/download.tensorflow.org/models/tflite/coco_ssd_mobilenet_v1_1.0_quant_2018_06_29.zip
+
+Run: chmod +x download_model.sh && ./download_model.sh

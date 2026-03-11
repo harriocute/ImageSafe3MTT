@@ -1,0 +1,2 @@
+rootProject.name = "SafeTry3MTT"
+include ':app'
