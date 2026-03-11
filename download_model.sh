@@ -1,5 +1,5 @@
 #!/bin/bash
-# Helper script to download TFLite model for Privacy Ghost
+# Helper script to download TFLite model for ImageSafe 3MTT
 
 MODEL_DIR="app/src/main/assets/models"
 mkdir -p "$MODEL_DIR"
