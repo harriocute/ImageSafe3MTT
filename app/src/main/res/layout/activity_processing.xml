@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/background_dark"
-            app:title="Privacy Ghost"
+            app:title="ImageSafe 3MTT"
             app:titleTextColor="@color/text_primary"
             app:subtitleTextColor="@color/accent_cyan" />
     </com.google.android.material.appbar.AppBarLayout>

@@ -123,15 +123,15 @@ class MainActivity : AppCompatActivity() {
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Share Protection Active")
             .setMessage(
-                "Privacy Ghost is ready to protect your photos!\n\n" +
+                "ImageSafe 3MTT is ready to protect your photos!\n\n" +
                 "HOW TO USE:\n" +
                 "1. Open your Gallery or Files app\n" +
                 "2. Select any photo\n" +
                 "3. Tap the Share button\n" +
-                "4. Choose 'Privacy Ghost' from the share menu\n" +
+                "4. Choose 'ImageSafe 3MTT' from the share menu\n" +
                 "5. Review the privacy report\n" +
                 "6. Tap 'Share Clean File' to share safely\n\n" +
-                "Privacy Ghost will automatically:\n" +
+                "ImageSafe 3MTT will automatically:\n" +
                 "• Remove GPS and metadata\n" +
                 "• Detect and blur license plates\n" +
                 "• Detect and blur street signs\n" +

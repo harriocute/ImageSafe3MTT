@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 /**
  * This activity intercepts Android share intents.
- * It appears in the Android share menu as "Privacy Ghost".
+ * It appears in the Android share menu as "ImageSafe 3MTT".
  * When selected, it immediately launches the ProcessingActivity.
  */
 class ShareReceiverActivity : AppCompatActivity() {

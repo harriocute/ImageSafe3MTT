@@ -8,7 +8,7 @@ import com.safetry.privacy.R
 import com.safetry.privacy.ui.MainActivity
 
 /**
- * Optional background service that keeps Privacy Ghost ready to intercept shares.
+ * Optional background service that keeps ImageSafe 3MTT ready to intercept shares.
  * Runs as a foreground service to maintain reliability.
  */
 class PrivacyService : Service() {
@@ -57,7 +57,7 @@ class PrivacyService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Privacy Ghost Active")
+            .setContentTitle("ImageSafe 3MTT Active")
             .setContentText("Protecting your photos when you share")
             .setSmallIcon(R.drawable.ic_shield)
             .setContentIntent(pendingIntent)
@@ -70,10 +70,10 @@ class PrivacyService : Service() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Privacy Ghost Service",
+            "ImageSafe 3MTT Service",
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Keeps Privacy Ghost ready to protect your shared photos"
+            description = "Keeps ImageSafe 3MTT ready to protect your shared photos"
         }
 
         val notificationManager = getSystemService(NotificationManager::class.java)

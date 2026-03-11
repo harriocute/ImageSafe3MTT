@@ -1,4 +1,4 @@
-# Safe Try 3MTT — Privacy Ghost 🛡️
+# Safe Try 3MTT — ImageSafe 3MTT 🛡️
 
 **An Android privacy tool that automatically protects users from leaking personal information when sharing photos.**
 
@@ -7,7 +7,7 @@
 ## Features
 
 ### 🔍 Share Interception
-- Appears in Android's native share menu as **"Privacy Ghost"**
+- Appears in Android's native share menu as **"ImageSafe 3MTT"**
 - Intercepts images before they reach any app (WhatsApp, Telegram, social media, etc.)
 
 ### 🧹 EXIF Metadata Scrubber
