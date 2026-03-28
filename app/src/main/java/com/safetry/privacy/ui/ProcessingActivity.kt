@@ -311,6 +311,13 @@ class ProcessingActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun showError(message: String) {
+        binding.layoutProcessing.visibility = View.GONE
+        binding.layoutResults.visibility = View.GONE
+        binding.layoutError.visibility = View.VISIBLE
+        binding.tvErrorMessage.text = message
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         aiRedactor.close()
