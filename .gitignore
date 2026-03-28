@@ -67,3 +67,6 @@ lint/tmp/
 
 # TFLite model (too large for git, downloaded by CI)
 app/src/main/assets/models/detect.tflite
+imagesafe.keystore
+*.keystore
+*.b64
