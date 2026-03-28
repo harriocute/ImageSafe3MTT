@@ -241,6 +241,18 @@
                     android:textColor="@color/background_dark" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveToDevice"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="💾  Save to Gallery"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="12dp"
+                    app:backgroundTint="@color/card_dark"
+                    android:textColor="@color/accent_cyan"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:strokeColor="@color/accent_cyan"/>
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCancel"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"

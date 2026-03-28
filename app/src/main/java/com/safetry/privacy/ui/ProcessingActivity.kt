@@ -1,10 +1,14 @@
 package com.safetry.privacy.ui
 
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +27,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ProcessingActivity : AppCompatActivity() {
 
@@ -63,6 +71,7 @@ class ProcessingActivity : AppCompatActivity() {
 
     private fun setupButtons() {
         binding.btnShareClean.setOnClickListener { shareCleanFile() }
+        binding.btnSaveToDevice.setOnClickListener { saveToDevice() }
         binding.btnCancel.setOnClickListener { cleanupAndFinish() }
     }
 
@@ -79,7 +88,6 @@ class ProcessingActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // Read ALL toggle preferences
                 val blurFaces = withContext(Dispatchers.IO) { prefs.getBlurFaces().first() }
                 val blurPlates = withContext(Dispatchers.IO) { prefs.getBlurLicensePlates().first() }
                 val blurSigns = withContext(Dispatchers.IO) { prefs.getBlurStreetSigns().first() }
@@ -94,7 +102,6 @@ class ProcessingActivity : AppCompatActivity() {
                 updateStatus("Running AI analysis...")
                 val detections = withContext(Dispatchers.Default) {
                     try {
-                        // Pass each toggle individually - only detect what is ON
                         aiRedactor.detectSensitiveContent(
                             bitmap = originalBitmap,
                             blurFaces = blurFaces,
@@ -103,9 +110,7 @@ class ProcessingActivity : AppCompatActivity() {
                             blurIdBadges = blurBadges,
                             blurTextDocs = blurDocs
                         )
-                    } catch (e: Exception) {
-                        emptyList()
-                    }
+                    } catch (e: Exception) { emptyList() }
                 }
 
                 updateStatus("Applying privacy protection...")
@@ -152,9 +157,14 @@ class ProcessingActivity : AppCompatActivity() {
         binding.layoutResults.visibility = View.GONE
         binding.layoutError.visibility = View.GONE
         binding.btnShareClean.isEnabled = false
+        binding.btnSaveToDevice.isEnabled = false
     }
 
-    private fun showResults(bitmap: Bitmap, detections: List<DetectionResult>, report: PrivacyReport) {
+    private fun showResults(
+        bitmap: Bitmap,
+        detections: List<DetectionResult>,
+        report: PrivacyReport
+    ) {
         binding.layoutProcessing.visibility = View.GONE
         binding.layoutResults.visibility = View.VISIBLE
         binding.layoutError.visibility = View.GONE
@@ -168,6 +178,7 @@ class ProcessingActivity : AppCompatActivity() {
         binding.scoreProgressAfter.progress = report.scoreAfter * 10
         binding.tvPrivacyReport.text = buildReportText(report)
         binding.btnShareClean.isEnabled = true
+        binding.btnSaveToDevice.isEnabled = true
 
         binding.tvScoreBefore.setTextColor(when {
             report.scoreBefore >= 8 -> getColor(android.R.color.holo_green_dark)
@@ -195,16 +206,96 @@ class ProcessingActivity : AppCompatActivity() {
         return sb.toString()
     }
 
-    private fun showError(message: String) {
-        binding.layoutProcessing.visibility = View.GONE
-        binding.layoutResults.visibility = View.GONE
-        binding.layoutError.visibility = View.VISIBLE
-        binding.tvErrorMessage.text = message
+    private fun saveToDevice() {
+        val filePath = cleanedFilePath ?: run {
+            Toast.makeText(this, "No clean file ready", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val saved = withContext(Dispatchers.IO) {
+                    saveImageToGallery(filePath)
+                }
+                if (saved) {
+                    Toast.makeText(
+                        this@ProcessingActivity,
+                        "✅ Saved to Gallery → ImageSafe",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    binding.btnSaveToDevice.text = "✅ Saved!"
+                    binding.btnSaveToDevice.isEnabled = false
+                } else {
+                    Toast.makeText(
+                        this@ProcessingActivity,
+                        "Failed to save image",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@ProcessingActivity,
+                    "Error: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun saveImageToGallery(filePath: String): Boolean {
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "ImageSafe_$timestamp.jpg"
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10+ use MediaStore
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                put(MediaStore.Images.Media.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/ImageSafe")
+                put(MediaStore.Images.Media.IS_PENDING, 1)
+            }
+
+            val uri = contentResolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            ) ?: return false
+
+            contentResolver.openOutputStream(uri)?.use { outputStream ->
+                FileInputStream(filePath).use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+
+            contentValues.clear()
+            contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+            contentResolver.update(uri, contentValues, null, null)
+            true
+        } else {
+            // Android 9 and below
+            val picturesDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES
+            )
+            val imageSafeDir = File(picturesDir, "ImageSafe")
+            if (!imageSafeDir.exists()) imageSafeDir.mkdirs()
+
+            val destFile = File(imageSafeDir, fileName)
+            File(filePath).copyTo(destFile, overwrite = true)
+
+            // Notify gallery
+            val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+            mediaScanIntent.data = Uri.fromFile(destFile)
+            sendBroadcast(mediaScanIntent)
+            true
+        }
     }
 
     private fun shareCleanFile() {
         val file = cleanedFilePath?.let { File(it) } ?: return
-        if (!file.exists()) { Toast.makeText(this, "Clean file not found", Toast.LENGTH_SHORT).show(); return }
+        if (!file.exists()) {
+            Toast.makeText(this, "Clean file not found", Toast.LENGTH_SHORT).show()
+            return
+        }
         val fileUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", file)
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
             type = "image/jpeg"
@@ -214,9 +305,14 @@ class ProcessingActivity : AppCompatActivity() {
     }
 
     private fun cleanupAndFinish() {
-        cleanedFilePath?.let { lifecycleScope.launch(Dispatchers.IO) { File(it).delete() } }
+        cleanedFilePath?.let {
+            lifecycleScope.launch(Dispatchers.IO) { File(it).delete() }
+        }
         finish()
     }
 
-    override fun onDestroy() { super.onDestroy(); aiRedactor.close() }
+    override fun onDestroy() {
+        super.onDestroy()
+        aiRedactor.close()
+    }
 }
