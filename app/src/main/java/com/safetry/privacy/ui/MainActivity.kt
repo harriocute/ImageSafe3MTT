@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupButtons() {
         binding.btnScanFile.setOnClickListener { checkPermissionsAndPickImage() }
         binding.btnShareProtection.setOnClickListener { showShareProtectionInfo() }
+
         binding.switchBlurFaces.setOnCheckedChangeListener { _, v ->
             lifecycleScope.launch { prefs.setBlurFaces(v) }
         }
@@ -61,28 +62,42 @@ class MainActivity : AppCompatActivity() {
         binding.switchAutoRemoveMetadata.setOnCheckedChangeListener { _, v ->
             lifecycleScope.launch { prefs.setAutoRemoveMetadata(v) }
         }
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/harriocute")))
-        }
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.linkedin.com/in/harricode")))
-        }
     }
 
     private fun loadPreferences() {
-        lifecycleScope.launch { prefs.getBlurFaces().collect { binding.switchBlurFaces.isChecked = it } }
-        lifecycleScope.launch { prefs.getBlurLicensePlates().collect { binding.switchLicensePlates.isChecked = it } }
-        lifecycleScope.launch { prefs.getBlurStreetSigns().collect { binding.switchStreetSigns.isChecked = it } }
-        lifecycleScope.launch { prefs.getBlurIdBadges().collect { binding.switchIdBadges.isChecked = it } }
-        lifecycleScope.launch { prefs.getBlurTextDocs().collect { binding.switchTextDocs.isChecked = it } }
-        lifecycleScope.launch { prefs.getAutoRemoveMetadata().collect { binding.switchAutoRemoveMetadata.isChecked = it } }
+        lifecycleScope.launch {
+            prefs.getBlurFaces().collect { binding.switchBlurFaces.isChecked = it }
+        }
+        lifecycleScope.launch {
+            prefs.getBlurLicensePlates().collect { binding.switchLicensePlates.isChecked = it }
+        }
+        lifecycleScope.launch {
+            prefs.getBlurStreetSigns().collect { binding.switchStreetSigns.isChecked = it }
+        }
+        lifecycleScope.launch {
+            prefs.getBlurIdBadges().collect { binding.switchIdBadges.isChecked = it }
+        }
+        lifecycleScope.launch {
+            prefs.getBlurTextDocs().collect { binding.switchTextDocs.isChecked = it }
+        }
+        lifecycleScope.launch {
+            prefs.getAutoRemoveMetadata().collect { binding.switchAutoRemoveMetadata.isChecked = it }
+        }
     }
 
     private fun checkPermissionsAndPickImage() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
-        else arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-        if (permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED })
+        else
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        if (permissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }) {
             pickImageLauncher.launch("image/*")
-        else permissionLauncher.launch(permissions)
+        } else {
+            permissionLauncher.launch(permissions)
+        }
     }
 
     private fun launchProcessing(uri: Uri) {
@@ -95,7 +110,13 @@ class MainActivity : AppCompatActivity() {
     private fun showShareProtectionInfo() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Share Protection Active")
-            .setMessage("Open Gallery → Share any photo → Choose AI Metadata Remover Pro → Review report → Share Clean File\n\nAll processing is 100% ON-DEVICE.")
+            .setMessage(
+                "Open Gallery → Share any photo → Choose AI Metadata Remover Pro\n\n" +
+                "The app will:\n" +
+                "• Remove GPS and metadata\n" +
+                "• Blur only what you have toggled ON\n\n" +
+                "All processing is 100% ON-DEVICE."
+            )
             .setPositiveButton("Got it!") { d, _ -> d.dismiss() }
             .show()
     }
