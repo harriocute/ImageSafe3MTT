@@ -71,3 +71,5 @@ imagesafe.keystore
 *.keystore
 *.b64
 app/imagesafe.keystore
+*.b64
+*.txt.b64
