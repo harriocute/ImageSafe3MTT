@@ -1,4 +1,4 @@
-# Safe Try 3MTT — ImageSafe 3MTT 🛡️
+# — ImageSafe🛡️
 
 **An Android privacy tool that automatically protects users from leaking personal information when sharing photos.**
 
@@ -7,7 +7,7 @@
 ## Features
 
 ### 🔍 Share Interception
-- Appears in Android's native share menu as **"ImageSafe 3MTT"**
+- Appears in Android's native share menu as **"ImageSafe "**
 - Intercepts images before they reach any app (WhatsApp, Telegram, social media, etc.)
 
 ### 🧹 EXIF Metadata Scrubber
@@ -123,11 +123,7 @@ com.safetry.privacy/
 
 ---
 
-## Contributing
 
-Built for the **3MTT Nigeria** program. Contributions welcome!
-
----
 
 ## License
 
